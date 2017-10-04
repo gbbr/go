@@ -324,14 +324,7 @@ func Fields(s []byte) [][]byte {
 // FieldsFunc makes no guarantees about the order in which it calls f(c).
 // If f does not return consistent results for a given c, FieldsFunc may crash.
 func FieldsFunc(s []byte, f func(rune) bool) [][]byte {
-	// A span is used to record a slice of s of the form s[start:end].
-	// The start index is inclusive and the end index is exclusive.
-	type span struct {
-		start int
-		end   int
-	}
-	spans := make([]span, 0, 32)
-
+	a := make([][]byte, 0, 32)
 	// Find the field start and end indices.
 	wasField := false
 	fromIndex := 0
@@ -343,7 +336,7 @@ func FieldsFunc(s []byte, f func(rune) bool) [][]byte {
 		}
 		if f(r) {
 			if wasField {
-				spans = append(spans, span{start: fromIndex, end: i})
+				a = append(a, s[fromIndex:i])
 				wasField = false
 			}
 		} else {
@@ -354,19 +347,11 @@ func FieldsFunc(s []byte, f func(rune) bool) [][]byte {
 		}
 		i += size
 	}
-
 	// Last field might end at EOF.
 	if wasField {
-		spans = append(spans, span{fromIndex, len(s)})
+		a = append(a, s[fromIndex:])
 	}
-
-	// Create subslices from recorded field indices.
-	a := make([][]byte, len(spans))
-	for i, span := range spans {
-		a[i] = s[span.start:span.end]
-	}
-
-	return a
+	return a[:len(a):len(a)]
 }
 
 // Join concatenates the elements of s to create a new byte slice. The separator

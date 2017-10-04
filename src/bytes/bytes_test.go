@@ -845,6 +845,7 @@ func TestFieldsFunc(t *testing.T) {
 		{"XX", []string{}},
 		{"XXhiXXX", []string{"hi"}},
 		{"aXXbXXXcX", []string{"a", "b", "c"}},
+		{"aXXbXXXcXd", []string{"a", "b", "c", "d"}},
 	}
 	for _, tt := range fieldsFuncTests {
 		a := FieldsFunc([]byte(tt.s), pred)
